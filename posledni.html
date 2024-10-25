@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web s logy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            color: white;
+        }
+
+        /* Video jako pozadí */
+        #background-video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1; /* Aby bylo video pod vším ostatním */
+            filter: brightness(25%); /* Mírně tmavší, aby byl text čitelný */
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1; /* Obsah nad videem */
+        }
+
+        .logo {
+            width: 100%; /* Logo se přizpůsobí šířce stránky */
+            max-width: 800px; /* Maximální šířka loga */
+            max-height: 260px; /* Maximální výška loga */
+            height: auto; /* Výška se přizpůsobí automaticky */
+            margin: 20px 0; /* Mezera kolem loga */
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .contact-form {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contact-input {
+            padding: 15px;
+            margin: 10px 0;
+            width: 1250%; /* Změněno na 100% pro lepší přizpůsobení */
+            max-width: 1030px; /* Zvětšeno, aby se text pohodlně vešel */
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .submit-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+
+        .submit-button:hover {
+            background-color: #218838;
+        }
+
+        .offer-section {
+            margin: 20px 0;
+            text-align: left;
+            width: 80%;
+        }
+
+        .offer-item {
+            background-color: transparent;
+            border: none;
+            padding: 10px;
+            margin: 10px 0;
+            transition: background-color 4s;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .offer-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .offer-description {
+            display: none;
+            margin: 5px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .offer-description.visible {
+            display: block;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+
+        .pairs {
+            margin-top: 20px;
+            font-size: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .pair {
+            margin: 0 10px;
+        }
+
+        .chatbot-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #D4AF37;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            font-size: 30px;
+            color: white;
+        }
+
+        .chat-window {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .chat-window.active {
+            display: block;
+        }
+
+        .chat-window header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
+        }
+
+        .chat-message {
+            padding: 70px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-input-container {
+            display: flex;
+            border-top: 1px solid #ccc;
+        }
+
+        .user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 14px;
+        }
+
+        .send-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .send-button:hover {
+            background-color: #218838;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const descriptions = document.querySelectorAll('.offer-description');
+            let delay = 4000;
+
+            descriptions.forEach((desc, index) => {
+                setTimeout(() => {
+                    desc.classList.add('visible');
+                }, delay);
+                delay += 4000;
+            });
+
+            setTimeout(() => {
+                const safePurchaseDescription = document.getElementById('desc1');
+                safePurchaseDescription.classList.add('visible');
+            }, 4000);
+
+            fetchPrices();
+            setInterval(fetchPrices, 120000);
+        });
+
+        function toggleDescription(id) {
+            const desc = document.getElementById(id);
+            desc.classList.toggle('visible');
+        }
+
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.classList.toggle('active');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value;
+            const chatMessages = document.getElementById('chatMessages');
+
+            if (message.trim() === "") return;
+
+            // Přidání zprávy od uživatele
+            chatMessages.innerHTML += `<div><strong>Vy:</strong> ${message}</div>`;
+            input.value = '';
+
+            // Odpovědi chatbota
+            setTimeout(() => {
+                let response = getBotResponse(message);
+                chatMessages.innerHTML += `<div><strong>Chatbot:</strong> ${response}</div>`;
+                chatMessages.scrollTop = chatMessages.scrollHeight;  // Rolování dolů
+            }, 1000);
+        }
+
+        // Jednoduché odpovědi na základě klíčových frází
+        function getBotResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('ahoj') || lowerMessage.includes('čau')) {
+                return "Ahoj! Jak vám mohu pomoci?";
+            } else if (lowerMessage.includes('jak se máš')) {
+                return "Jsem jen program, takže žádné emoce, ale děkuji za optání!";
+            } else if (lowerMessage.includes('co nabízíte')) {
+                return "Nabízíme bezpečný nákup kryptoměn, ochranu aktiv a sledování portfolia. Podívejte se na naši nabídku výše.";
+            } else if (lowerMessage.includes('kontakt')) {
+                return "Můžete nás kontaktovat přes formulář nahoře nebo zavolat na naši infolinku.";
+            } else {
+                return "Promiňte, nerozumím. Můžete zkusit otázku jinak?";
+            }
+        }
+
+        async function fetchPrices() {
+            const prices = {
+                'BTC/CZK': Math.random() * 2000000,
+                'ETH/CZK': Math.random() * 50000,
+                'USDT/CZK': Math.random() * 25,
+                'EUR/CZK': Math.random() * 30,
+                'USD/CZK': Math.random() * 30,
+            };
+            document.getElementById('btc-czk-price').innerText = prices['BTC/CZK'].toFixed(2);
+            document.getElementById('eth-czk-price').innerText = prices['ETH/CZK'].toFixed(2);
+            document.getElementById('usdt-czk-price').innerText = prices['USDT/CZK'].toFixed(2);
+            document.getElementById('eur-czk-price').innerText = prices['EUR/CZK'].toFixed(2);
+            document.getElementById('usd-czk-price').innerText = prices['USD/CZK'].toFixed(2);
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Video na pozadí -->
+    <video id="background-video" autoplay muted loop>
+        <source src="file:///C:/Users/JakubStřalka/OneDrive%20-%20Inopack%20Czech%20Republic%20s.r.o/Dokumenty/WEB/TT.mp4" type="video/mp4">
+        Váš prohlížeč nepodporuje přehrávání videa.
+    </video>
+
+    <div class="container">
+        <!-- Logo -->
+        <img src="file:///C:/Users/JakubStřalka/OneDrive%20-%20Inopack%20Czech%20Republic%20s.r.o/Dokumenty/WEB/P.png" alt="Logo" class="logo" />
+
+        <p>Ochrana aktiv v kryptoměnách je zásadní. Naše zkušenosti s podvody a krachy nám umožňují efektivně zabezpečit vaše investice. Usilujeme o transparentní spolupráci, kde máte poslední slovo Vy.</p>
+
+        <h2>CO NABÍZÍME </h2>
+        <div class="offer-section">
+            <div class="offer-item" onclick="toggleDescription('desc1')">🔒 <strong>Bezpečný nákup kryptoměn</strong></div>
+            <div class="offer-description" id="desc1">
+                Zajišťujeme nákup na ověřených platformách. Naše spolupráce se světovými směnárnami jako jsou Binance, Kraken a Coinbase vám garantuje bezpečný a bezproblémový nákup kryptoměn.
+            </div>
+
+            <div class="offer-item" onclick="toggleDescription('desc2')">🛡️ <strong>Ochrana aktiv</strong></div>
+            <div class="offer-description" id="desc2">
+                Pro maximální zabezpečení jsou vaše kryptoměny uchovávány v hardwarových peněženkách, jako jsou TREZOR a LEDGER, což vám poskytuje nejvyšší úroveň bezpečnosti.Přístup do peněženky máte pouze Vy!
+            </div>
+
+            <div class="offer-item" onclick="toggleDescription('desc3')">🚀 <strong>Kompletní proces</strong></div>
+            <div class="offer-description" id="desc3">
+                Zajistíme kompletní proces od vkladu prostředků a jejich uložení na hardwarovou peněženku až po výběr, který vám umožníme provést v CZK, EUR nebo USD.Klient je vždy přítomen při každém kroku, což zaručuje plnou informovanost a kontrolu nad svými prostředky.
+            </div>
+
+            <div class="offer-item" onclick="toggleDescription('desc5')">📈 <strong>Sledování portfolia</strong></div>
+            <div class="offer-description" id="desc5">
+                Prostřednictvím aplikace ve vašem telefonu či počítači budete mít vždy přehled o svém portfoliu, zatímco vaše kryptoměny zůstanou bezpečně uloženy v hardwarové peněžence.
+            </div>
+
+            <div class="offer-item" onclick="toggleDescription('desc6')">📊 <strong>Analýza trhu</strong></div>
+            <div class="offer-description" id="desc6">
+                Pokud Vás bude zajímat některá z kryptoměn nebo nový vycházející projekt, vyhodnotíme za vás rizika a provedeme analýzu a životaschopnost daného projektu.
+            </div>
+        </div>
+
+        <p> Zvolte s námi cestu bezpečnosti a spolehlivosti místo nejistých slibů. Naše konzultace probíhají osobně, protože jsme přesvědčeni, že osobní setkání je klíčové pro budování důvěry a transparentnosti. Jsme tu, abychom Vám pomohli vybudovat stabilní a prosperující budoucnost vašich investic. I když se občas může objevit možnost rychlého zhodnocení, ve většině případů jde o iluze. Sázíme na dlouhodobé investice, které přinášejí efektivní zhodnocení a stabilní výnosy.</p>
+
+        <div class="contact-form">
+            <input type="text" class="contact-input" placeholder="Chcete-li se dozvědět více o našich službách a získat bezplatnou a nezávaznou konzultaci, zanechte nám svůj e-mail nebo telefonní číslo, a my se vám ozveme.." />
+            <button class="submit-button">Odeslat</button>
+        </div>
+
+        <div class="pairs">
+            <div class="pair">BTC/CZK: <span id="btc-czk-price">0</span></div>
+            <div class="pair">ETH/CZK: <span id="eth-czk-price">0</span></div>
+            <div class="pair">USDT/CZK: <span id="usdt-czk-price">0</span></div>
+            <div class="pair">EUR/CZK: <span id="eur-czk-price">0</span></div>
+            <div class="pair">USD/CZK: <span id="usd-czk-price">0</span></div>
+        </div>
+
+        <div class="chatbot-icon" onclick="toggleChat()">💬</div>
+        <div class="chat-window" id="chatWindow">
+            <header>
+                Chatbot <span class="close-btn" onclick="toggleChat()">×</span>
+            </header>
+            <div class="chat-message" id="chatMessages"></div>
+            <div class="user-input-container">
+                <input type="text" class="user-input" id="userInput" placeholder="Zeptejte se mě..." />
+                <button class="send-button" onclick="sendMessage()">Odeslat</button>
+            </div>
+        </div>
+    </div>
+
+    <div style="height: 800px;"></div>
+
+</body>
+
+</html>

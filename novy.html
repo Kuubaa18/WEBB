@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Úvodní Video</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Video fullscreen */
+        #intro-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 4s ease; /* Přechod efekt na 4 sekundy */
+        }
+
+        /* Třída pro fade out efekt */
+        .fade-out {
+            opacity: 0; /* Zmenší průhlednost na 0 */
+        }
+    </style>
+</head>
+<body>
+    <!-- Video element -->
+    <video id="intro-video" autoplay muted>
+        <source src="file:///C:/Users/JakubStřalka/OneDrive%20-%20Inopack%20Czech%20Republic%20s.r.o/Dokumenty/WEB/LOKK.mp4" type="video/mp4">
+        Váš prohlížeč nepodporuje přehrávání videa.
+    </video>
+
+    <script>
+        const video = document.getElementById('intro-video');
+
+        // Přidáme efekt po 11 sekundách (aby efekt běžel poslední 2 sekundy)
+        setTimeout(() => {
+            video.classList.add('fade-out');
+        }, 11000); // Fade out začne po 10 sekundách
+
+        // Po 11 sekundách přesměrujeme na hlavní stránku
+        setTimeout(() => {
+            window.location.href = 'file:///C:/Users/JakubStřalka/OneDrive%20-%20Inopack%20Czech%20Republic%20s.r.o/Dokumenty/WEB/posledni.html';
+        }, 10700); // Přesměrování po 10 sekundách
+    </script>
+</body>
+</html>
